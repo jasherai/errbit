@@ -26,6 +26,7 @@ gem 'inherited_resources'
 gem 'SystemTimer', :platform => :ruby_18
 gem 'hoptoad_notifier', "~> 2.4"
 gem 'actionmailer_inline_css', "~> 1.3.0"
+gem 'aws-ses', "~> 0.4.4"
 gem 'kaminari'
 gem 'rack-ssl-enforcer'
 gem 'fabrication', "~> 1.3.0"   # Both for tests, and loading demo data
