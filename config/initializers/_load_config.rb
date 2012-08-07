@@ -19,14 +19,24 @@ unless defined?(Errbit::Config)
     Errbit::Config.github_secret = ENV['GITHUB_SECRET']
     Errbit::Config.github_access_scope = ENV['GITHUB_ACCESS_SCOPE'].split(',').map(&:strip) if ENV['GITHUB_ACCESS_SCOPE']
 
-    Errbit::Config.smtp_settings = {
-      :address        => "smtp.sendgrid.net",
-      :port           => "25",
-      :authentication => :plain,
-      :user_name      => ENV['SENDGRID_USERNAME'],
-      :password       => ENV['SENDGRID_PASSWORD'],
-      :domain         => ENV['SENDGRID_DOMAIN']
-    }
+
+    Errbit::Config.ses_email_delivery = ENV['SES_EMAIL_DELIVERY']
+    # TODO: Check for existing AWS Creds in the env and use them if the SES_ ones aren't defined.
+    # this allows us to use IAM and SES specific creds if defined. Are there existing vars that
+    # are used in heroku for other "stuffs"?
+    Errbit::Config.ses_access_key_id = ENV['SES_ACCESS_KEY']||ENV['AMAZON_ACCESS_KEY']
+    Errbit::Config.ses_secret_access_key = ENV['SES_SECRET_ACCESS_KEY']||ENV['AMAZON_SECRET_KEY']
+
+    unless ENV['SES_EMAIL_DELIVERY'] == true
+      Errbit::Config.smtp_settings = {
+        :address        => "smtp.sendgrid.net",
+        :port           => "25",
+        :authentication => :plain,
+        :user_name      => ENV['SENDGRID_USERNAME'],
+        :password       => ENV['SENDGRID_PASSWORD'],
+        :domain         => ENV['SENDGRID_DOMAIN']
+      }
+    end
   end
 
   # Use example config for test environment.
@@ -60,6 +70,15 @@ end
 if smtp = Errbit::Config.smtp_settings
   ActionMailer::Base.delivery_method = :smtp
   ActionMailer::Base.smtp_settings = smtp
+end
+
+# Load and set aws-ses if enabled
+if Errbit::Config.ses_email_delivery == true
+  require 'aws/ses'
+  ActionMailer::Base.add_delivery_method :ses, AWS::SES::Base,
+        :access_key_id     => Errbit::Config.ses_access_key_id,
+        :secret_access_key => Errbit::Config.ses_secret_access_key
+  ActionMailer::Base.delivery_method = :ses
 end
 
 # Set config specific values

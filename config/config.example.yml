@@ -79,3 +79,11 @@ github_access_scope: ['repo']
 #  :user_name:            USERNAME
 #  :password:             PASSWORD
 
+# Configure SMTP for AWS-SES. If you want to use Amazon's SES service
+# to deliver your emails then Setting the following settings will activate its use.
+# This uses your aws credentials. You may wish to use IAM for an email sender specific
+# credentials.
+# ------------------------------------------------------------------------
+ses_email_delivery: false
+ses_access_key_id: 'AWS_ACCESS_KEY'
+ses_secret_access_key: 'AWS_SECRET_ACCESS_KEY'
